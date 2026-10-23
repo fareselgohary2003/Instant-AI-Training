@@ -106,7 +106,3 @@ The model's predictions depend on its training data, image quality, and the simi
 OralSense AI is an educational and research-oriented image classification project. It is not a clinically validated diagnostic system and must not be used as a substitute for examination, diagnosis, or treatment by a qualified dental or medical professional.
 
 Predictions may be inaccurate, particularly for images that differ from the model's training data. Any real-world clinical use would require appropriate validation, testing, and professional oversight.
-
-## License
-
-No license is currently specified. All rights to the source code, model weights, and associated assets must be confirmed before reuse or redistribution.
