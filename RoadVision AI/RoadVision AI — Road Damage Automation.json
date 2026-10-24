@@ -1,0 +1,376 @@
+{
+  "name": "RoadVision AI — Road Damage Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "roadvision-detections",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "53d668cd-2f98-43d9-8f30-de7a6af79f6d",
+      "name": "Receive RoadVision Results",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        384
+      ],
+      "webhookId": "bbbeed05-a928-494b-8dcf-f73ed8876f18",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "40vXMP7WLaJrbx0i",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const CLASSES = [\"pothole\", \"crack\", \"manhole\"];\nconst raw = $input.first().json;\nconst body = raw && typeof raw.body === \"object\" && raw.body !== null && !Array.isArray(raw.body) ? raw.body : null;\nconst errors = [];\nlet detections = [];\nlet counts = { pothole: 0, crack: 0, manhole: 0 };\nlet confs = [];\nif (!body || Object.keys(body).length === 0) {\n  errors.push(\"Request body is missing, empty, or not a JSON object.\");\n} else {\n  const list = Array.isArray(body.detections) ? body.detections : Array.isArray(body.predictions) ? body.predictions : Array.isArray(body.results) ? body.results : null;\n  if (list === null) {\n    errors.push(\"No detections array found (expected detections, predictions or results).\");\n  } else {\n    list.forEach((d, i) => {\n      if (typeof d !== \"object\" || d === null) { errors.push(\"Detection \" + i + \" is not an object.\"); return; }\n      const labelRaw = d.class_name ?? d.label ?? d.class ?? d.name;\n      const label = typeof labelRaw === \"string\" ? labelRaw.trim().toLowerCase() : \"\";\n      const confRaw = d.confidence ?? d.conf ?? d.score;\n      const conf = typeof confRaw === \"number\" ? confRaw : (typeof confRaw === \"string\" && confRaw.trim() !== \"\" ? Number(confRaw) : NaN);\n      if (!CLASSES.includes(label)) errors.push(\"Detection \" + i + \" has an unknown or missing class label.\");\n      if (!Number.isFinite(conf) || conf < 0 || conf > 1) errors.push(\"Detection \" + i + \" has a confidence that is not a number between 0 and 1.\");\n      if (CLASSES.includes(label) && Number.isFinite(conf) && conf >= 0 && conf <= 1) {\n        counts[label] += 1;\n        confs.push(conf);\n        detections.push({ class_name: label, confidence: conf, bbox_xyxy: d.bbox_xyxy ?? d.bbox ?? null });\n      }\n    });\n  }\n}\nconst valid = errors.length === 0;\nconst total = detections.length;\nconst b = body || {};\nconst out = {\n  is_valid: valid,\n  errors: errors,\n  inspection_id: b.inspection_id ?? b.id ?? (\"exec-\" + $execution.id),\n  timestamp: b.timestamp ?? new Date().toISOString(),\n  source: b.source ?? \"unspecified\",\n  total_detections: total,\n  pothole_count: counts.pothole,\n  crack_count: counts.crack,\n  manhole_count: counts.manhole,\n  detections: detections,\n  confidence_summary: total > 0 ? { min: Math.min(...confs), max: Math.max(...confs), avg: confs.reduce((a, c) => a + c, 0) / total } : null,\n  status: !valid ? \"invalid\" : total > 0 ? \"detected\" : \"clear\",\n};\nreturn [{ json: out }];"
+      },
+      "id": "5e29c1ad-3198-4e5b-9f22-6f7e756eaac6",
+      "name": "Validate and Normalize Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "valid",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "935f99b9-009e-4b0e-ac81-32319f44d544",
+      "name": "Is Payload Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "road_inspections"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "inspection_id": "={{ $json.inspection_id }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "source": "={{ $json.source }}",
+            "total_detections": "={{ $json.total_detections }}",
+            "pothole_count": "={{ $json.pothole_count }}",
+            "crack_count": "={{ $json.crack_count }}",
+            "manhole_count": "={{ $json.manhole_count }}",
+            "detections_json": "={{ JSON.stringify($json.detections) }}",
+            "status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "8d6df877-c671-40f8-9a69-7adc4b2563bf",
+      "name": "Save Inspection Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        672,
+        288
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VRb47kqniSofdeIs",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gt0",
+              "leftValue": "={{ $(\"Validate and Normalize Data\").item.json.total_detections }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "732f9e5d-6b28-46b7-ae55-4aea164fcaf9",
+      "name": "Damage Detected?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        896,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"error\", message: \"Inspection was NOT saved to the database. No alert was sent.\", inspection_id: $(\"Validate and Normalize Data\").item.json.inspection_id, total_detections: $(\"Validate and Normalize Data\").item.json.total_detections, saved: false, notified: false }) }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "id": "cd785beb-cc62-4e66-82e8-908501a716c6",
+      "name": "Respond Save Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "1404059474",
+        "text": "=Road inspection requires review\n\nInspection ID: {{ $(\"Validate and Normalize Data\").item.json.inspection_id }}\nTimestamp: {{ $(\"Validate and Normalize Data\").item.json.timestamp }}\nTotal detections: {{ $(\"Validate and Normalize Data\").item.json.total_detections }}\nPotholes: {{ $(\"Validate and Normalize Data\").item.json.pothole_count }}\nCracks: {{ $(\"Validate and Normalize Data\").item.json.crack_count }}\nManholes: {{ $(\"Validate and Normalize Data\").item.json.manhole_count }}\nModel confidence (min / avg / max): {{ $(\"Validate and Normalize Data\").item.json.confidence_summary.min.toFixed(2) }} / {{ $(\"Validate and Normalize Data\").item.json.confidence_summary.avg.toFixed(2) }} / {{ $(\"Validate and Normalize Data\").item.json.confidence_summary.max.toFixed(2) }}\n\nThese are automated model detections and have not been verified by a person.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "b3fadf02-047f-46d3-a5c0-757c36db8138",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        96
+      ],
+      "webhookId": "adadd548-d78d-4d04-a96d-405c1e2e5eb9",
+      "credentials": {
+        "telegramApi": {
+          "id": "ohHvXbROYqnFOKA3",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"processed\", inspection_id: $(\"Validate and Normalize Data\").item.json.inspection_id, total_detections: $(\"Validate and Normalize Data\").item.json.total_detections, saved: true, notified: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b8fd34dd-28c0-4abf-9c17-a60757a99985",
+      "name": "Respond Processed and Notified",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"processed_with_errors\", message: \"Inspection was saved but the Telegram alert failed.\", inspection_id: $(\"Validate and Normalize Data\").item.json.inspection_id, total_detections: $(\"Validate and Normalize Data\").item.json.total_detections, saved: true, notified: false }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "c884c24d-2ca2-441a-9a85-0a934e347d5d",
+      "name": "Respond Notification Failed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1344,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"processed\", inspection_id: $(\"Validate and Normalize Data\").item.json.inspection_id, total_detections: 0, saved: true, notified: false }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "7ead8391-755d-4c40-a417-4be620fca794",
+      "name": "Respond Processed No Damage",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"rejected\", message: \"Invalid RoadVision payload. Nothing was recorded.\", inspection_id: $json.inspection_id, errors: $json.errors }) }}",
+        "options": {
+          "responseCode": 422
+        }
+      },
+      "id": "c6fe2e7d-8bef-4b57-90f4-ef57365e25ef",
+      "name": "Respond Invalid Payload",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        480
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive RoadVision Results": {
+      "main": [
+        [
+          {
+            "node": "Validate and Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Is Payload Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Payload Valid?": {
+      "main": [
+        [
+          {
+            "node": "Save Inspection Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Inspection Record": {
+      "main": [
+        [
+          {
+            "node": "Damage Detected?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Save Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Damage Detected?": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Processed No Damage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond Processed and Notified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Notification Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2570bc12-b88e-47a9-9403-6d318a5694cb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "473586e9fafea93ac1973bf465e88a00cfdae0005324ff052178fa805b1730ca"
+  },
+  "nodeGroups": [],
+  "id": "5JhtMViSaBGnw62s",
+  "tags": []
+}

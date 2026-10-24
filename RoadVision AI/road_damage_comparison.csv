@@ -1,0 +1,4 @@
+﻿Class,Confidence,BBox
+Pothole,0.92,"[0,0,100,100]"
+Crack,0.87,"[0,0,120,120]"
+Manhole,0.76,"[0,0,150,150]"
