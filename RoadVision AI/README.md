@@ -1,89 +1,53 @@
-# RoadVision AI — Intelligent Road Damage Detection & Automation
+# RoadVision AI — Road Damage Detection & Automation
 
-An AI-powered road damage detection and workflow automation system that integrates computer vision, a web dashboard, FastAPI, n8n, PostgreSQL, and Telegram notifications.
+RoadVision AI is an AI-powered road damage detection and workflow automation project. It combines computer vision, a FastAPI backend, a web dashboard, n8n automation, PostgreSQL, and Telegram notifications.
 
-RoadVision AI uses a trained YOLOv8 object detection model to analyze uploaded road images and detect potholes, cracks, and manholes. Detection results are processed by a FastAPI backend and forwarded to an n8n workflow for automated processing, database storage, and Telegram notifications.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Screenshots](#screenshots)
-- [System Architecture](#system-architecture)
-- [Technology Stack](#technology-stack)
-- [Supported Detection Classes](#supported-detection-classes)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Running the Application](#running-the-application)
-- [Workflow Automation](#workflow-automation)
-- [Model Training](#model-training)
-- [Security](#security)
-- [Future Improvements](#future-improvements)
-- [Author](#author)
-
-## Overview
-
-RoadVision AI demonstrates how computer vision can be integrated with backend services and workflow automation to create an end-to-end road damage analysis pipeline.
-
-Users can upload road images through a web dashboard, run AI-powered object detection, and view the detection results. The backend sends structured detection data to an n8n webhook, where conditional logic connects the detection process with PostgreSQL storage and Telegram notifications.
-
-The project combines AI inference, API development, frontend development, workflow orchestration, database integration, and messaging automation.
+The system uses a trained YOLOv8 model to detect potholes, cracks, and manholes in road images. Detection results are processed by the backend and can be sent to an n8n workflow for conditional processing, database storage, and Telegram notifications.
 
 ## Key Features
 
-- **AI-Powered Detection:** Detects potholes, cracks, and manholes in uploaded road images.
-- **Interactive Dashboard:** Provides a web interface for uploading images and viewing detection results.
-- **YOLOv8 Model Integration:** Uses trained model weights for object detection.
-- **FastAPI Backend:** Handles application requests and detection processing.
-- **Webhook Integration:** Transfers structured detection data to n8n.
-- **Conditional Workflow Automation:** Routes detection data through configured workflow logic.
-- **PostgreSQL Integration:** Stores detection records in a relational database.
-- **Telegram Notifications:** Sends automated notifications through a Telegram bot.
-- **End-to-End Integration:** Connects computer vision, backend processing, workflow automation, database storage, and messaging.
+- AI-powered road damage detection using a trained YOLOv8 model.
+- Image upload and detection results through a web dashboard.
+- FastAPI backend for application and inference requests.
+- Webhook integration with n8n Cloud.
+- Conditional workflow automation.
+- PostgreSQL integration for detection records.
+- Telegram bot notifications.
+- Model training using a Kaggle Notebook with GPU acceleration.
 
 ## Screenshots
 
 ### Web Dashboard
 
-The main interface for interacting with RoadVision AI.
+![RoadVision AI Dashboard](dashboard-ui.png.png)
 
-![RoadVision AI Dashboard](screenshots/dashboard-ui.png.png)
+### Detection Results
 
-### Road Damage Detection Results
-
-An example of the detection interface and model output.
-
-![Road Damage Detection Results](screenshots/detection-results.png.png)
+![Road Damage Detection Results](detection-results.png.png)
 
 ### Image Upload Interface
 
-The interface used to submit road images for analysis.
-
-![RoadVision AI Image Upload](screenshots/upload-interface.png.png)
+![RoadVision AI Upload Interface](upload-interface.png.png)
 
 ### n8n Automation Workflow
 
-The workflow connecting the backend to conditional processing, PostgreSQL, and Telegram.
-
-![RoadVision AI n8n Workflow](screenshots/n8n-workflow.png.png)
+![RoadVision AI n8n Workflow](n8n-workflow.png.png)
 
 ### Telegram Notification
 
-An example of the automated Telegram notification.
-
-![RoadVision AI Telegram Notification](screenshots/telegram-notification.png.png)
+![RoadVision AI Telegram Notification](telegram-notification.png.png)
 
 ## System Architecture
 
-The application follows an integrated processing pipeline:
+The system connects image-based AI inference with an automated backend workflow.
 
-1. **Image Upload:** The user uploads a road image through the web dashboard.
-2. **AI Inference:** The trained YOLOv8 model analyzes the image and identifies supported classes.
-3. **Backend Processing:** FastAPI handles the request and prepares detection results.
-4. **Webhook Communication:** The backend sends structured data to the configured n8n webhook.
-5. **Workflow Processing:** n8n receives the payload and applies the configured conditional logic.
-6. **Database Storage:** Detection information is stored in PostgreSQL.
-7. **Telegram Notification:** The workflow sends a notification according to its configured conditions.
+1. The user uploads a road image through the dashboard.
+2. The trained YOLOv8 model detects supported classes.
+3. FastAPI processes the request and prepares the detection results.
+4. The backend sends structured detection data to an n8n webhook.
+5. n8n processes the incoming data using configured workflow logic.
+6. PostgreSQL stores detection records.
+7. Telegram sends notifications according to the workflow configuration.
 
 ```text
 Road Image
@@ -95,22 +59,21 @@ Web Dashboard
 FastAPI Backend
     |
     v
-YOLOv8 Detection
+YOLOv8 Model
     |
     v
-Structured Detection Results
+Detection Results
     |
     v
 n8n Webhook
     |
     v
-Conditional Workflow Logic
+Conditional Processing
     |
     +--------------------+
     |                    |
     v                    v
 PostgreSQL          Telegram Bot
-Detection Records   Notifications
 ```
 
 ## Technology Stack
@@ -121,10 +84,10 @@ Detection Records   Notifications
 | Object Detection | YOLOv8 |
 | Model Framework | Ultralytics |
 | Model Training | Kaggle Notebook with GPU |
-| Backend API | FastAPI |
+| Backend | FastAPI |
 | Frontend | HTML, CSS, JavaScript |
-| API Integration | REST API and Webhooks |
 | Workflow Automation | n8n Cloud |
+| API Integration | Webhooks |
 | Database | PostgreSQL |
 | Notifications | Telegram Bot API |
 | Version Control | Git and GitHub |
@@ -133,34 +96,27 @@ Detection Records   Notifications
 
 | Class | Description |
 |---|---|
-| Pothole | Road surface holes and localized pavement damage |
+| Pothole | Road surface holes and localized damage |
 | Crack | Visible cracks in road surfaces |
 | Manhole | Manholes and related road-surface structures |
 
-Detection results depend on the trained model, input image quality, and inference configuration.
+Detection performance depends on the trained model, input image quality, and inference configuration.
 
-## Project Structure
+## Repository Files
 
-```text
-road_damage_deployment/
-├── main.py
-├── best.pt
-├── requirements.txt
-├── README.md
-├── .gitignore
-├── static/
-│   ├── app.js
-│   ├── index.html
-│   └── style.css
-├── screenshots/
-│   ├── dashboard-ui.png.png
-│   ├── detection-results.png.png
-│   ├── upload-interface.png.png
-│   ├── n8n-workflow.png.png
-│   └── telegram-notification.png.png
-└── n8n/
-    └── roadvision-workflow.json
-```
+The repository includes the following project assets:
+
+- `main.py` — FastAPI backend.
+- `best.pt` — trained object detection model weights.
+- `road_damage_comparison.csv` — road damage comparison data.
+- `RoadVision AI — Road Damage Automation.json` — exported n8n workflow.
+- `dashboard-ui.png.png` — dashboard screenshot.
+- `detection-results.png.png` — detection results screenshot.
+- `upload-interface.png.png` — image upload screenshot.
+- `n8n-workflow.png.png` — workflow screenshot.
+- `telegram-notification.png.png` — Telegram notification screenshot.
+
+The web interface files should be included in the `static/` directory if the backend depends on them. A `requirements.txt` file should also be included to document the Python dependencies.
 
 ## Installation
 
@@ -168,9 +124,9 @@ road_damage_deployment/
 
 - Python
 - pip
-- The trained YOLOv8 model weights
+- The trained model weights
 - An accessible n8n instance or n8n Cloud account
-- PostgreSQL database configuration
+- PostgreSQL configuration
 - Telegram bot configuration
 
 ### 1. Clone the Repository
@@ -198,25 +154,23 @@ source .venv/bin/activate
 
 ### 3. Install Dependencies
 
+Once `requirements.txt` is included in the repository, install the required packages:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Configure the Model
 
-Ensure that `best.pt` is available at the model path expected by the application.
+Ensure that `best.pt` is located at the path expected by the application.
 
-If the model weights are hosted separately, download them and place them at the expected path before running inference.
+### 5. Configure n8n
 
-### 5. Configure the Automation Workflow
+Import the exported workflow JSON into n8n and configure the webhook, PostgreSQL connection, and Telegram bot credentials.
 
-Configure the n8n workflow with the required webhook, PostgreSQL connection, and Telegram bot credentials.
-
-Keep credentials in the appropriate secure configuration fields. Do not commit API keys, bot tokens, passwords, or private webhook URLs to GitHub.
+Do not publish credentials or private webhook URLs in the repository.
 
 ## Running the Application
-
-From the project directory, start the FastAPI server.
 
 If the FastAPI application instance in `main.py` is named `app`, run:
 
@@ -224,52 +178,45 @@ If the FastAPI application instance in `main.py` is named `app`, run:
 uvicorn main:app --reload
 ```
 
-Open the local URL displayed in the terminal. The dashboard route depends on the application's configuration.
+Open the local URL displayed in the terminal. The dashboard route depends on the application configuration.
 
-For end-to-end automation, ensure the n8n workflow is active and its integrations are configured correctly.
+For end-to-end automation, make sure the n8n workflow is active and its integrations are configured correctly.
 
 ## Workflow Automation
 
-The n8n workflow connects model output to downstream automation.
+The n8n workflow connects the detection backend to downstream processing.
 
-Its configured responsibilities include:
+Depending on the configured workflow, it can:
 
-- Receiving detection data through a webhook.
-- Processing structured detection information.
-- Applying conditional logic.
-- Storing detection records in PostgreSQL.
-- Sending Telegram notifications according to workflow conditions.
+- Receive detection data through a webhook.
+- Process detection information.
+- Apply conditional logic.
+- Store records in PostgreSQL.
+- Send Telegram notifications.
 
-The workflow can be exported as JSON for version control, documentation, and reuse. Credentials should be configured separately after importing the workflow.
+The exported workflow JSON can be used for documentation and workflow reuse. Credentials should be configured securely after importing the workflow.
 
 ## Model Training
 
-The object detection model was trained using a Kaggle Notebook with GPU acceleration. The trained weights are used by the backend to perform inference on uploaded images.
+The object detection model was trained using a Kaggle Notebook with GPU acceleration. The resulting trained weights are used for inference on uploaded road images.
 
-The model supports three classes: potholes, cracks, and manholes.
-
-This repository focuses on the deployment and integration pipeline, including the web dashboard, backend API, and workflow automation.
+The supported detection classes are potholes, cracks, and manholes.
 
 ## Security
 
-Before deploying or sharing the project:
-
-- Never commit Telegram bot tokens, database passwords, or private API keys.
-- Do not publish `.env` files containing secrets.
-- Review exported n8n workflow files for credentials and private webhook URLs.
-- Keep virtual environments, caches, and temporary files out of version control.
-- Avoid including sensitive information in screenshots, logs, or sample payloads.
-- If `best.pt` exceeds GitHub's standard 100 MB file limit, use Git LFS or external model hosting.
+- Never commit API keys, Telegram bot tokens, or database passwords.
+- Do not upload `.env` files containing secrets.
+- Review exported workflow JSON files for sensitive configuration.
+- Exclude virtual environments, caches, and temporary files.
+- If `best.pt` exceeds GitHub's 100 MB standard file limit, use Git LFS or external model hosting.
 
 ## Future Improvements
 
-Potential extensions include:
-
-- Real-time road damage detection from video streams.
-- Geolocation tagging for detected defects.
-- Historical detection analytics and reporting.
-- Road damage severity estimation and prioritization.
-- Map-based visualization of road defects.
+- Real-time detection from video streams.
+- Geolocation tagging for road defects.
+- Historical detection analytics.
+- Road damage severity estimation.
+- Map-based visualization of detected defects.
 - Cloud deployment and integration with road maintenance systems.
 
 ## Author
@@ -278,10 +225,10 @@ Potential extensions include:
 
 AI Agentic & Automation Engineer
 
-- **GitHub:** [fareselgohary2003](https://github.com/fareselgohary2003)
-- **LinkedIn:** [Fares Elgohary](https://www.linkedin.com/in/fares-elgohary-91ba22380/)
-- **Kaggle:** [elgohary249](https://www.kaggle.com/elgohary249)
+- [GitHub](https://github.com/fareselgohary2003)
+- [LinkedIn](https://www.linkedin.com/in/fares-elgohary-91ba22380/)
+- [Kaggle](https://www.kaggle.com/elgohary249)
 
 ---
 
-RoadVision AI demonstrates the integration of computer vision and AI inference with backend API development, workflow automation, database storage, and messaging integrations.
+RoadVision AI demonstrates the integration of computer vision, backend API development, workflow automation, database storage, and messaging integrations.
