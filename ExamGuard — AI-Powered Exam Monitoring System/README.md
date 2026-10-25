@@ -47,44 +47,46 @@
 
 The system combines computer vision, object tracking, evidence capture, database persistence, and incident management into a unified application. It supports webcam-based monitoring and uploaded video processing, with desktop interfaces and a browser-based dashboard for reviewing recorded incidents.
 
-Rather than making automatic disciplinary decisions, ExamGuard provides visual observations and supporting evidence that human reviewers can inspect.
+ExamGuard provides visual observations and supporting evidence for human review rather than making automatic disciplinary decisions.
 
 ### Project Goals
 
-- Apply computer vision to examination monitoring scenarios.
+- Apply computer vision to examination monitoring.
 - Detect relevant objects, including mobile phones.
 - Track people across video frames using multi-object tracking.
 - Visualize detections using color-coded bounding boxes.
 - Capture screenshots when qualifying events occur.
 - Store incident metadata and evidence references in a database.
 - Support human review through incident history and review statuses.
-- Provide both desktop and web-based interfaces.
+- Provide desktop and web-based interfaces.
+
+---
 
 ## Project Preview
 
 ### Desktop Application
 
-![ExamGuard Desktop Overview](docs/images/examguard-overview.png)
+![ExamGuard Desktop Overview](docs/images/examguard-overview.png.png)
 
 ### Live Camera Monitoring
 
-![ExamGuard Live Camera Monitoring](docs/images/live-camera.png)
+![ExamGuard Live Camera Monitoring](docs/images/live-camera.png.png)
 
 ### Uploaded Video Processing
 
-![ExamGuard Video Processing](docs/images/video-processing.png)
+![ExamGuard Video Processing](docs/images/video-processing.png.png)
 
 ### AI Detection Results
 
-![ExamGuard Detection Results](docs/images/detection-results.png)
+![ExamGuard Detection Results](docs/images/detection-results.png.png)
 
 ### Incident History and Evidence Review
 
-![ExamGuard Incident History](docs/images/incident-history.png)
+![ExamGuard Incident History](docs/images/incident-history.png.png)
 
 ### Web Dashboard
 
-![ExamGuard Web Dashboard](docs/images/web-dashboard.png)
+![ExamGuard Web Dashboard](docs/images/web-dashboard.png.png)
 
 ---
 
@@ -111,6 +113,7 @@ Rather than making automatic disciplinary decisions, ExamGuard provides visual o
 ExamGuard uses the YOLOv8 object detection model to identify relevant objects, including people and mobile phones.
 
 The detection pipeline can provide:
+
 - Object bounding boxes.
 - Object classes.
 - Detection confidence scores.
@@ -120,7 +123,7 @@ Detection results depend on video quality, camera position, lighting, occlusion,
 
 ### 4. Multi-Object Tracking
 
-ByteTrack is used to maintain object track IDs across video frames, helping the system associate observations with tracked people over time.
+ByteTrack maintains object track IDs across video frames, helping the system associate observations with tracked people over time.
 
 Spatial association heuristics can associate a detected phone with a nearby person when the relationship is sufficiently clear. Ambiguous associations should remain unassigned rather than being treated as certain.
 
@@ -132,11 +135,12 @@ The processed video can display color-coded annotations:
 - **Red:** People associated with an event requiring review.
 - **Orange/Amber:** Detected mobile phones and their detection confidence.
 
-These colors communicate the system's observations and review state. They do not establish misconduct.
+These colors communicate system observations and review states. They do not establish misconduct.
 
 ### 6. Evidence Capture and Storage
 
 When configured conditions are met, the system can:
+
 - Capture an annotated screenshot.
 - Save the screenshot to the evidence directory.
 - Record event metadata in SQLite.
@@ -151,12 +155,13 @@ The incident workflow supports reviewing recorded events, inspecting associated 
 
 ExamGuard includes two Python desktop interfaces:
 
-- **PySide6:** The primary desktop interface, with a modern Qt-based layout and dedicated application views.
+- **PySide6:** The primary Qt-based desktop interface.
 - **Tkinter:** An alternative desktop interface retained for compatibility with the original project specification.
 
 ### 9. Web Dashboard and API
 
 The project also includes:
+
 - A FastAPI backend for supported HTTP endpoints.
 - A SQLite database for persistent incident records.
 - A React + Vite dashboard for viewing incident information and statistics.
@@ -178,7 +183,7 @@ The general workflow is:
 9. **Review evidence:** A human reviewer inspects the incident and records an appropriate review decision.
 
 <details>
-<summary><strong>Technical workflow</strong></summary>
+<summary><strong>Technical Workflow</strong></summary>
 
 ```text
 Live Camera / Uploaded Video
@@ -292,6 +297,12 @@ ExamGuard/
 ├── tests/
 ├── docs/
 │   └── images/
+│       ├── examguard-overview.png.png
+│       ├── live-camera.png.png
+│       ├── video-processing.png.png
+│       ├── detection-results.png.png
+│       ├── incident-history.png.png
+│       └── web-dashboard.png.png
 ├── requirements.txt
 └── README.md
 ```
@@ -318,7 +329,7 @@ git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd <YOUR_REPOSITORY_FOLDER>
 ```
 
-Replace the placeholders with the actual repository URL and directory name.
+Replace the placeholders with your actual GitHub repository URL and directory name.
 
 ### 2. Create a Virtual Environment
 
@@ -332,7 +343,7 @@ Activate it in PowerShell:
 .\.venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks script activation, use the appropriate activation method for your local security policy or run the virtual environment's Python executable directly.
+Alternatively, use the virtual environment's Python executable directly.
 
 ### 3. Install Python Dependencies
 
@@ -341,17 +352,15 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-If the repository does not include `requirements.txt`, consult the project's dependency configuration before installing packages manually.
-
 ### 4. Verify the YOLO Model
 
-If the model weights are included in the repository root, verify the expected file exists, for example:
+If the model weights are included in the repository root, verify that the expected file exists:
 
 ```text
 yolov8n.pt
 ```
 
-If the weights are missing, use the model-loading or download procedure supported by the project and ensure that the downloaded weights are compatible with the configured detection pipeline.
+If the weights are missing, use the model-loading or download procedure supported by the project.
 
 ### 5. Install Web Dashboard Dependencies
 
@@ -375,37 +384,25 @@ From the repository root:
 .\.venv\Scripts\python.exe desktop_app_qt.py
 ```
 
-This launches the Qt-based desktop interface, assuming the required dependencies and configuration are installed.
-
 ### Option 2: Tkinter Desktop Application
 
 ```powershell
 .\.venv\Scripts\python.exe desktop_app.py
 ```
 
-This launches the alternative Tkinter interface if its required modules are available in the current environment.
-
 ### Option 3: FastAPI Backend
-
-Start the API server:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
 ```
 
-If the backend starts successfully, the API base address is:
+If the server starts successfully, the API base address is:
 
-```text
-http://127.0.0.1:8000
-```
+`http://127.0.0.1:8000`
 
-FastAPI's interactive API documentation is typically available at:
+Interactive API documentation is typically available at:
 
-```text
-http://127.0.0.1:8000/docs
-```
-
-The actual endpoints and behavior are defined by the backend implementation.
+`http://127.0.0.1:8000/docs`
 
 ### Option 4: React + Vite Web Dashboard
 
@@ -416,13 +413,11 @@ cd frontend
 npm run dev
 ```
 
-Open the local address printed by Vite in the terminal. In a typical development configuration, this is:
+Open the local address printed by Vite. The default development address is commonly:
 
-```text
-http://localhost:5173
-```
+`http://localhost:5173`
 
-Ensure the backend is running and the frontend's API configuration points to the correct backend address.
+Ensure the backend is running and the frontend API configuration points to the correct backend address.
 
 ---
 
@@ -431,15 +426,13 @@ Ensure the backend is running and the frontend's API configuration points to the
 ### Live Camera Monitoring
 
 1. Launch the PySide6 desktop application.
-2. Open the live monitoring or camera processing view, if available in the current build.
+2. Open the live camera or monitoring view.
 3. Grant camera access when requested.
 4. Start monitoring.
 5. Observe the camera feed and detection annotations.
 6. Inspect any incident notifications generated by the system.
 7. Stop monitoring when finished.
-8. Open incident history to inspect the saved records and associated evidence.
-
-Camera availability, performance, and detection quality depend on the local hardware and environment.
+8. Open incident history to inspect saved records and associated evidence.
 
 ### Uploaded Video Processing
 
@@ -447,21 +440,21 @@ Camera availability, performance, and detection quality depend on the local hard
 2. Open the video processing view.
 3. Select a supported video file.
 4. Start processing.
-5. Monitor the processing progress and annotated frames.
+5. Monitor processing progress and annotated frames.
 6. Wait for processing to complete.
-7. Inspect the generated output if the selected workflow saves an annotated video.
-8. Review any incidents and their associated screenshots.
+7. Inspect the generated output if the workflow saves an annotated video.
+8. Review any incidents and associated screenshots.
 
 ### Reviewing an Incident
 
 1. Open the incident history or review view.
 2. Select an incident.
 3. Inspect its timestamp, event details, track association, and confidence value.
-4. Open the evidence screenshot if one is available.
+4. Open the evidence screenshot if available.
 5. Evaluate the evidence in context.
 6. Record the appropriate review status and notes using the available interface.
 
-A missing screenshot or an unassigned track ID should be treated as missing information, not as evidence of misconduct.
+A missing screenshot or an unassigned track ID should be treated as missing information, not evidence of misconduct.
 
 ---
 
@@ -484,21 +477,19 @@ The exact schema is determined by the database implementation.
 
 ### Confidence Is Not a Cheating Probability
 
-A detection confidence score represents the model's confidence in its object detection. For example, a high-confidence phone detection indicates that the model strongly recognizes an object as a phone; it does not indicate that a student is likely to have cheated.
+A detection confidence score represents the model's confidence in its object detection. A high-confidence phone detection does not mean that a student is likely to have cheated.
 
 ---
 
 ## Testing
 
-ExamGuard includes a project-specific automated test suite.
-
-To run tests with pytest:
+Run the automated test suite with pytest:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -v
 ```
 
-The tests may cover areas such as:
+Depending on the current test suite, tests may cover:
 
 - Database operations and migrations.
 - Incident creation and retrieval.
@@ -511,7 +502,7 @@ The tests may cover areas such as:
 
 The actual test coverage depends on the current test files and environment.
 
-**Testing note:** Automated test results do not automatically establish that every hardware-dependent workflow works on every machine. Live camera behavior, GPU acceleration, and full end-to-end workflows should also be verified in the target environment.
+Automated tests do not automatically establish that every hardware-dependent workflow works on every machine. Live camera behavior, GPU acceleration, and full end-to-end workflows should also be verified in the target environment.
 
 ---
 
@@ -548,7 +539,7 @@ Tracking and spatial association may fail because of occlusion, overlapping peop
 
 ## Limitations and Future Improvements
 
-Potential areas for future development include:
+Potential future improvements include:
 
 - More robust detection under challenging lighting and camera angles.
 - Improved person-object association in crowded scenes.
@@ -557,7 +548,7 @@ Potential areas for future development include:
 - More comprehensive end-to-end and hardware integration tests.
 - Improved deployment and packaging workflows.
 - Expanded reporting and analytics.
-- Role-based access control and stronger evidence-retention management.
+- Stronger access control and evidence-retention management.
 
 These are potential improvements, not claims that they are already implemented.
 
