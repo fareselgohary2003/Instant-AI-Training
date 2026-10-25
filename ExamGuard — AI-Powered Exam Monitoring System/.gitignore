@@ -1,0 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches and tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Node / Vite frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/.vite/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+cheating_system.db
+
+# Large weights and models (auto-downloaded by Ultralytics)
+*.pt
+yolov8n.pt
+yolov8n-pose.pt
+
+# Large media files (videos & recordings)
+*.mp4
+*.avi
+*.mov
+outputs/*
+!outputs/.gitkeep
+uploads/*
+!uploads/.gitkeep
+alerts/screenshots/*
+!alerts/screenshots/.gitkeep
+
+# Ultralytics runs & cache
+runs/
+
+# Secrets & Environment variables
+.env
+.env.*
+*.env
+
+# OS-generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

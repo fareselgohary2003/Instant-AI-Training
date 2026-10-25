@@ -1,0 +1,3 @@
+"""
+ExamGuard Desktop Application Package.
+"""
