@@ -1,138 +1,361 @@
-# ExamGuard — Cheating Tracking & Alert System
+# ExamGuard — AI-Powered Exam Monitoring System
 
-**ExamGuard** is an AI-powered proctoring assistance system designed to detect suspicious objects (such as mobile phones) in examination video recordings, track individual students across frames using ByteTrack, automatically archive high-resolution evidence screenshots, and present actionable incidents to human proctors via an **Enterprise PySide6 (Qt for Python) Desktop Application**, a **Standard Tkinter Desktop Application**, and a **React + Vite Web Dashboard**.
+<p align="center">
+  <strong>Real-Time Computer Vision · Multi-Object Tracking · Evidence-Based Incident Review</strong>
+</p>
+
+<p align="center">
+  An AI-assisted exam monitoring system that detects suspicious objects, tracks people across video frames, captures visual evidence, and helps human proctors review potential incidents through desktop and web interfaces.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Computer%20Vision-OpenCV-green" alt="Computer Vision">
+  <img src="https://img.shields.io/badge/Object%20Detection-YOLOv8-purple" alt="YOLOv8">
+  <img src="https://img.shields.io/badge/Tracking-ByteTrack-orange" alt="ByteTrack">
+  <img src="https://img.shields.io/badge/Desktop-PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6">
+  <img src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=black" alt="React">
+</p>
 
 ---
 
-## ⚠️ Important Ethical, Responsible Use & Technical Clarifications
+## Table of Contents
 
-1. **Observations vs. Misconduct**: An AI object detection (e.g. `phone_detected_review_required`) is a sensory observation and a review signal. **It is NOT conclusive proof of academic dishonesty or cheating intent.**
-2. **Detection Confidence**: The confidence percentage (e.g., 85%) reflects how confident the YOLO neural network is that a bounding box contains a cell phone. **It is NOT the probability that a student cheated.**
-3. **Human Proctor Authority**: Disciplinary actions must never be made automatically. All incidents require human proctor inspection, contextual verification, and manual determination (`pending`, `reviewed`, `dismissed`).
-4. **Spatial Association Heuristic**: If a phone bounding box center falls inside a student's bounding box, or within an unambiguous proximity boundary, the system heuristically associates that track ID. When multiple students are overlapping or equidistant, the system leaves the track ID **unassigned (`None`)** rather than fabricating an identity.
+- [Overview](#overview)
+- [Project Preview](#project-preview)
+- [Key Features](#key-features)
+- [How It Works](#how-it-works)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [Usage Guide](#usage-guide)
+- [Incident Management](#incident-management)
+- [Testing](#testing)
+- [Responsible AI and Privacy](#responsible-ai-and-privacy)
+- [Limitations and Future Improvements](#limitations-and-future-improvements)
+- [Author](#author)
 
 ---
 
-## System Architecture
+## Overview
 
-```
-ExamGuard Workspace
-│
-├── desktop_app_qt.py            # Enterprise PySide6 (Qt) Desktop Application entry point
-├── desktop_app.py               # Standard Tkinter Desktop Application entry point
-├── main.py                      # FastAPI REST Backend & API services
-├── database.py                  # SQLite schema manager, safe migrations & CRUD operations
-├── config.py                    # Centralized settings and directory paths
-├── cheating_system.db           # Persistent SQLite database (incidents & jobs)
-├── yolov8n.pt                   # Ultralytics YOLOv8 nano model weights
-│
-├── core/                        # Core Computer Vision Engine
-│   ├── engine.py                # Frame-by-frame tracker, cooldown deduplicator, video processor
-│   ├── visualizer.py            # Green/Red/Orange bounding box and high-contrast HUD overlays
-│   └── association.py           # Spatial proximity & containment heuristics
-│
-├── desktop_qt/                  # Enterprise PySide6 Desktop Application
-│   ├── theme.py                 # Dark Navy theme, QSS design tokens, color palette
-│   ├── worker.py                # QThread background worker with Qt Signals & Slots
-│   ├── main_window.py           # Main QMainWindow shell with QStackedWidget
-│   ├── components/
-│   │   ├── sidebar.py           # Collapsible navigation sidebar (240px / 64px)
-│   │   └── notification.py      # Floating in-app alert banner & audio chimes
-│   └── views/
-│       ├── overview_view.py     # Analytics KPI cards, custom painted distribution chart
-│       ├── processing_view.py   # Native video picker, live progress, video preview, summary
-│       ├── incidents_view.py    # Search, status filter, and incidents table
-│       ├── review_view.py       # High-res evidence screenshot inspection & decision logger
-│       └── settings_view.py     # Inference thresholds, model path, directories, device toggle
-│
-├── desktop/                     # Standard Tkinter Desktop Application Modular UI
-│   ├── theme.py                 # Tkinter palette & ttk style configurations
-│   ├── notifications.py         # Floating in-app alert banner
-│   └── views/                   # Tkinter views (Overview, Processing, Incidents, Review, Settings)
-│
-├── frontend/                    # React + Vite Web Dashboard
-│   ├── src/                     # React components, Tailwind/CSS, icons
-│   └── package.json
-│
-├── alerts/screenshots/          # Verified evidence screenshots
-├── outputs/processed_videos/    # Color-coded annotated output videos (.mp4)
-└── tests/                       # Pytest automated test suite (32 comprehensive tests)
-```
+**ExamGuard** is an AI-assisted exam monitoring and incident detection system designed to help proctors identify and review potentially suspicious events during examinations.
+
+The system combines computer vision, object tracking, evidence capture, database persistence, and incident management into a unified application. It supports webcam-based monitoring and uploaded video processing, with desktop interfaces and a browser-based dashboard for reviewing recorded incidents.
+
+Rather than making automatic disciplinary decisions, ExamGuard provides visual observations and supporting evidence that human reviewers can inspect.
+
+### Project Goals
+
+- Apply computer vision to examination monitoring scenarios.
+- Detect relevant objects, including mobile phones.
+- Track people across video frames using multi-object tracking.
+- Visualize detections using color-coded bounding boxes.
+- Capture screenshots when qualifying events occur.
+- Store incident metadata and evidence references in a database.
+- Support human review through incident history and review statuses.
+- Provide both desktop and web-based interfaces.
+
+## Project Preview
+
+### Desktop Application
+
+![ExamGuard Desktop Overview](docs/images/examguard-overview.png)
+
+### Live Camera Monitoring
+
+![ExamGuard Live Camera Monitoring](docs/images/live-camera.png)
+
+### Uploaded Video Processing
+
+![ExamGuard Video Processing](docs/images/video-processing.png)
+
+### AI Detection Results
+
+![ExamGuard Detection Results](docs/images/detection-results.png)
+
+### Incident History and Evidence Review
+
+![ExamGuard Incident History](docs/images/incident-history.png)
+
+### Web Dashboard
+
+![ExamGuard Web Dashboard](docs/images/web-dashboard.png)
 
 ---
 
 ## Key Features
 
-- **Enterprise PySide6 Desktop Application (`desktop_app_qt.py`)**:
-  - Polished security-operations center UI with deep navy surfaces (`#0B1120`, `#1E293B`).
-  - **Collapsible sidebar** toggling between full 240px labeled view and compact 64px icon view.
-  - Dedicated pages: **Overview Dashboard**, **Video Processing**, **Incident History**, **Incident Evidence Review**, and **Settings**.
-  - Non-blocking background worker execution using **Qt `QThread`** and thread-safe **Signals & Slots**.
-  - Real-time progress bar, live FPS counter, student tracking counter, and live frame preview canvas.
-  - Floating in-app notification banner with direct "Review Incident" action button and audio chime.
-  - Interactive Review page displaying evidence screenshots, event metadata, and reviewer notes editor.
-  - Settings page allowing configuration of confidence thresholds, cooldown seconds, and storage paths.
+### 1. Real-Time Camera Monitoring
 
-- **Standard Tkinter Desktop Application (`desktop_app.py`)**:
-  - Preserved to ensure 100% compliance with the original project specification requiring Tkinter.
-  - Zero external GUI library dependencies; runs out of the box with standard Python `tkinter`.
+- Monitor a live camera feed through the desktop application.
+- Run the computer vision pipeline on incoming frames.
+- Display visual detection results during monitoring.
+- Generate incident records when configured detection conditions are met.
+- Stop monitoring and release camera resources.
 
-- **Computer Vision & Tracking Pipeline**:
-  - YOLOv8 object detection targeting persons (class 0) and cell phones (class 67).
-  - ByteTrack multi-object tracking preserving consistent student track IDs across video frames.
-  - Color-coded visual overlays:
-    - **Green bounding boxes**: Normally tracked students (`Student #ID`).
-    - **Red bounding boxes**: Students associated with a suspicious detection (`REVIEW REQ: ID #ID`).
-    - **Orange/Amber bounding boxes**: Detected cell phones with confidence scores (`Phone 82%`).
-  - High-contrast text badges rendered over filled backgrounds for legibility against any background.
-  - Configurable cooldown deduplication preventing continuous adjacent frames from spamming the database with hundreds of redundant incidents.
+### 2. Uploaded Video Processing
 
-- **FastAPI REST Backend (`main.py`)**:
-  - Serves incident feeds, statistics, and reviewer decisions.
-  - Secure evidence image endpoint with strict path-traversal prevention (`403 Forbidden` on unauthorized paths).
-  - Background video processing API trigger (`POST /api/process-video`).
+- Select an existing examination video.
+- Process video frames through the detection and tracking pipeline.
+- Display annotated frames and processing progress.
+- Save processed video output when supported by the selected workflow.
+- Review incidents generated during processing.
 
-- **React + Vite Web Dashboard (`frontend/`)**:
-  - Modern web dashboard with real-time statistics cards, search filtering, and evidence review modals.
+### 3. AI Object Detection
+
+ExamGuard uses the YOLOv8 object detection model to identify relevant objects, including people and mobile phones.
+
+The detection pipeline can provide:
+- Object bounding boxes.
+- Object classes.
+- Detection confidence scores.
+- Frame-level visual annotations.
+
+Detection results depend on video quality, camera position, lighting, occlusion, model performance, and inference settings.
+
+### 4. Multi-Object Tracking
+
+ByteTrack is used to maintain object track IDs across video frames, helping the system associate observations with tracked people over time.
+
+Spatial association heuristics can associate a detected phone with a nearby person when the relationship is sufficiently clear. Ambiguous associations should remain unassigned rather than being treated as certain.
+
+### 5. Visual Detection Overlays
+
+The processed video can display color-coded annotations:
+
+- **Green:** Normally tracked people.
+- **Red:** People associated with an event requiring review.
+- **Orange/Amber:** Detected mobile phones and their detection confidence.
+
+These colors communicate the system's observations and review state. They do not establish misconduct.
+
+### 6. Evidence Capture and Storage
+
+When configured conditions are met, the system can:
+- Capture an annotated screenshot.
+- Save the screenshot to the evidence directory.
+- Record event metadata in SQLite.
+- Associate the incident with a track ID when available.
+- Preserve a reference to the saved evidence.
+
+### 7. Incident Management
+
+The incident workflow supports reviewing recorded events, inspecting associated screenshots, and managing review statuses such as `pending`, `reviewed`, and `dismissed`, where implemented.
+
+### 8. Desktop Applications
+
+ExamGuard includes two Python desktop interfaces:
+
+- **PySide6:** The primary desktop interface, with a modern Qt-based layout and dedicated application views.
+- **Tkinter:** An alternative desktop interface retained for compatibility with the original project specification.
+
+### 9. Web Dashboard and API
+
+The project also includes:
+- A FastAPI backend for supported HTTP endpoints.
+- A SQLite database for persistent incident records.
+- A React + Vite dashboard for viewing incident information and statistics.
 
 ---
 
-## Prerequisites
+## How It Works
 
-- **Python**: 3.10, 3.11, or 3.12 (64-bit recommended)
-- **Node.js**: 18+ and npm (for the React web dashboard)
-- **Operating System**: Windows 10/11 (fully supported; macOS / Linux compatible)
+The general workflow is:
+
+1. **Select a monitoring mode:** Start live camera monitoring or choose a video file.
+2. **Process frames:** The computer vision engine analyzes incoming video frames.
+3. **Detect objects:** YOLOv8 identifies people and relevant objects.
+4. **Track observations:** ByteTrack maintains track IDs across frames.
+5. **Associate observations:** Spatial heuristics may associate a detected phone with a tracked person when the evidence is sufficiently clear.
+6. **Render annotations:** The system displays detection boxes and relevant labels.
+7. **Generate incidents:** Events meeting configured conditions can trigger incident creation and evidence capture.
+8. **Persist results:** Incident metadata and evidence paths are saved through the database workflow.
+9. **Review evidence:** A human reviewer inspects the incident and records an appropriate review decision.
+
+<details>
+<summary><strong>Technical workflow</strong></summary>
+
+```text
+Live Camera / Uploaded Video
+            |
+            v
+      Frame Acquisition
+            |
+            v
+     YOLOv8 Detection
+            |
+            v
+   ByteTrack Association
+            |
+            v
+  Spatial Association Logic
+            |
+            v
+   Detection Visualization
+            |
+            v
+ Incident Trigger / Cooldown
+            |
+       +----+----+
+       |         |
+       v         v
+ Evidence      Incident
+ Screenshot    Metadata
+       |         |
+       +----+----+
+            |
+            v
+     SQLite Persistence
+            |
+            v
+   Incident Review Interfaces
+```
+
+</details>
 
 ---
 
-## Installation & Setup (Windows)
+## System Architecture
 
-### 1. Set Up Python Virtual Environment
+ExamGuard is organized into several components.
 
-In PowerShell or Command Prompt inside the repository root:
+| Component | Responsibility |
+|---|---|
+| Computer Vision Engine | Video processing, object detection, tracking, and event handling |
+| Visualization Module | Bounding boxes, labels, and annotated frames |
+| Association Logic | Spatial association between detected objects and tracked people |
+| PySide6 Desktop Application | Primary desktop monitoring and review interface |
+| Tkinter Desktop Application | Alternative desktop interface |
+| FastAPI Backend | HTTP API endpoints and backend services |
+| SQLite Database | Persistent incident data and supported job records |
+| React + Vite Dashboard | Browser-based incident monitoring and statistics |
+| Automated Tests | Verification of supported application components and behavior |
+
+The desktop applications and web dashboard provide different interfaces to the project. Their ability to share updates depends on the configured backend and database integration.
+
+---
+
+## Technology Stack
+
+| Category | Technologies |
+|---|---|
+| Programming Language | Python |
+| Object Detection | Ultralytics YOLOv8 |
+| Computer Vision | OpenCV |
+| Multi-Object Tracking | ByteTrack |
+| Desktop UI | PySide6 / Qt for Python, Tkinter |
+| Backend API | FastAPI |
+| Database | SQLite |
+| Web Frontend | React, Vite |
+| Frontend Language | JavaScript / JSX |
+| Testing | pytest and project-specific automated tests |
+
+---
+
+## Project Structure
+
+The following is a high-level overview of the main project components. Exact filenames and optional modules may vary by version.
+
+```text
+ExamGuard/
+├── main.py
+├── database.py
+├── config.py
+├── desktop_app_qt.py
+├── desktop_app.py
+├── core/
+│   ├── engine.py
+│   ├── visualizer.py
+│   └── association.py
+├── desktop_qt/
+│   ├── theme.py
+│   ├── worker.py
+│   ├── main_window.py
+│   ├── components/
+│   └── views/
+├── desktop/
+│   ├── theme.py
+│   ├── notifications.py
+│   └── views/
+├── frontend/
+│   ├── src/
+│   └── package.json
+├── alerts/
+│   └── screenshots/
+├── outputs/
+│   └── processed_videos/
+├── tests/
+├── docs/
+│   └── images/
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Windows 10/11 or another supported Python environment.
+- Python 3.10 or later, compatible with the installed dependencies.
+- Git.
+- Node.js and npm if you intend to run the web dashboard.
+- A webcam for live monitoring.
+- The YOLO model weights required by the application.
+
+GPU acceleration depends on compatible hardware, drivers, and the installed PyTorch configuration. CPU inference may be available but can run more slowly.
+
+### 1. Clone the Repository
 
 ```powershell
-# Create virtual environment (if not already created)
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd <YOUR_REPOSITORY_FOLDER>
+```
+
+Replace the placeholders with the actual repository URL and directory name.
+
+### 2. Create a Virtual Environment
+
+```powershell
 python -m venv .venv
+```
 
-# Activate virtual environment
+Activate it in PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
-# (Or in cmd.exe: .\.venv\Scripts\activate.bat)
+```
 
-# Upgrade pip and install dependencies
+If PowerShell blocks script activation, use the appropriate activation method for your local security policy or run the virtual environment's Python executable directly.
+
+### 3. Install Python Dependencies
+
+```powershell
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Verify Model Weights
+If the repository does not include `requirements.txt`, consult the project's dependency configuration before installing packages manually.
 
-ExamGuard uses `yolov8n.pt`. A copy is already included in the workspace root. If you need to re-download or update weights:
+### 4. Verify the YOLO Model
 
-```powershell
-python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+If the model weights are included in the repository root, verify the expected file exists, for example:
+
+```text
+yolov8n.pt
 ```
 
-### 3. Install Frontend Dependencies (Optional for Web Dashboard)
+If the weights are missing, use the model-loading or download procedure supported by the project and ensure that the downloaded weights are compatible with the configured detection pipeline.
+
+### 5. Install Web Dashboard Dependencies
+
+This step is optional if you only intend to use a desktop interface.
 
 ```powershell
 cd frontend
@@ -142,96 +365,213 @@ cd ..
 
 ---
 
-## How to Run ExamGuard
+## Running the Application
 
-You can run ExamGuard in any of the following modes:
+### Option 1: PySide6 Desktop Application
 
-### Mode 1: Enterprise PySide6 Desktop Application (Flagship)
+From the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe desktop_app_qt.py
 ```
 
-### Mode 2: Standard Tkinter Desktop Application (Specification Mandate)
+This launches the Qt-based desktop interface, assuming the required dependencies and configuration are installed.
+
+### Option 2: Tkinter Desktop Application
 
 ```powershell
 .\.venv\Scripts\python.exe desktop_app.py
 ```
 
-### Mode 3: FastAPI Backend Server
+This launches the alternative Tkinter interface if its required modules are available in the current environment.
 
-Run the REST API backend (serves `http://127.0.0.1:8000`):
+### Option 3: FastAPI Backend
+
+Start the API server:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
 ```
-Interactive Swagger documentation is accessible at: `http://127.0.0.1:8000/docs`
 
-### Mode 4: React + Vite Web Dashboard
+If the backend starts successfully, the API base address is:
 
-In a separate terminal:
+```text
+http://127.0.0.1:8000
+```
+
+FastAPI's interactive API documentation is typically available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The actual endpoints and behavior are defined by the backend implementation.
+
+### Option 4: React + Vite Web Dashboard
+
+Open a separate terminal:
 
 ```powershell
 cd frontend
 npm run dev
 ```
-Open your browser to: `http://localhost:5173`
 
----
+Open the local address printed by Vite in the terminal. In a typical development configuration, this is:
 
-## Video Processing Workflow
-
-1. Launch **ExamGuard Desktop** (`python desktop_app_qt.py` or `python desktop_app.py`).
-2. Navigate to **Video Processing** in the left sidebar.
-3. Click **Select Exam Video...** and choose an exam recording (e.g., `WhatsApp Video 2026-10-24 at 17.59.33.mp4`).
-4. Click **Start AI Processing**.
-5. Observe live tracking metrics and frame-by-frame preview in the monitor.
-6. When a suspicious object is detected:
-   - An annotated screenshot is verified and saved to `alerts/screenshots/`.
-   - The incident is persisted to `cheating_system.db`.
-   - An in-app alert banner sounds a chime and displays the event details.
-7. Upon completion:
-   - The annotated video with green/red boxes is saved to `outputs/processed_videos/`.
-   - Click **Play Output Video** to view the recording in your default media player.
-8. Switch to **Incident History** or **Incident Evidence Review** to record reviewer determinations and notes.
-
----
-
-## Storage Locations
-
-| Artifact | Location | Description |
-| :--- | :--- | :--- |
-| **Database** | `cheating_system.db` | SQLite database storing incidents and processing jobs |
-| **Evidence Screenshots** | `alerts/screenshots/` | Verified JPEG evidence captures of suspicious frames |
-| **Annotated Videos** | `outputs/processed_videos/` | Fully rendered videos with track IDs and bounding boxes |
-| **Legacy Incidents** | `incidents/` | Backward-compatible folder containing previous screenshots |
-| **Settings File** | `config.json` | Local user preferences and custom threshold overrides |
-
----
-
-## Running the Automated Test Suite
-
-ExamGuard includes an extensive test suite verifying database migrations, spatial heuristics, image rendering, cooldown deduplication, API endpoints, and both PySide6 and Tkinter GUI components:
-
-```powershell
-.\.venv\Scripts\pytest.exe -v
+```text
+http://localhost:5173
 ```
 
-All 32 tests will execute and validate:
-- Database schema creation and migration.
-- Incident addition, retrieval, filtering, and search.
-- Review status updates and notes persistence.
-- Spatial containment and proximity association heuristics.
-- Color overlay contrast and bounding box rendering.
-- VideoDetectionEngine execution and safe cancellation.
-- FastAPI endpoints, path-traversal security, and image serving.
-- Tkinter Desktop initialization, view switching, and notification triggers.
-- PySide6 Desktop initialization, collapsible sidebar, QThread worker signals, and notification triggers.
+Ensure the backend is running and the frontend's API configuration points to the correct backend address.
 
 ---
 
-## Troubleshooting & Hardware Notes
+## Usage Guide
 
-- **CUDA Acceleration**: If an NVIDIA GPU with CUDA is present, ExamGuard will automatically leverage it. If no GPU is available, the engine automatically runs inference on the CPU without crashing.
-- **Tcl/Tk on Windows Virtual Environments**: If Python cannot find `init.tcl` for Tkinter, ExamGuard's `desktop_app.py` automatically detects and sets `TCL_LIBRARY` and `TK_LIBRARY` paths from the base Python installation.
-- **PySide6 vs Tkinter**: Both desktop applications use the exact same underlying `core.engine` and `database` modules. Changes made in one desktop client or the React dashboard immediately reflect across all interfaces.
+### Live Camera Monitoring
+
+1. Launch the PySide6 desktop application.
+2. Open the live monitoring or camera processing view, if available in the current build.
+3. Grant camera access when requested.
+4. Start monitoring.
+5. Observe the camera feed and detection annotations.
+6. Inspect any incident notifications generated by the system.
+7. Stop monitoring when finished.
+8. Open incident history to inspect the saved records and associated evidence.
+
+Camera availability, performance, and detection quality depend on the local hardware and environment.
+
+### Uploaded Video Processing
+
+1. Launch the desktop application.
+2. Open the video processing view.
+3. Select a supported video file.
+4. Start processing.
+5. Monitor the processing progress and annotated frames.
+6. Wait for processing to complete.
+7. Inspect the generated output if the selected workflow saves an annotated video.
+8. Review any incidents and their associated screenshots.
+
+### Reviewing an Incident
+
+1. Open the incident history or review view.
+2. Select an incident.
+3. Inspect its timestamp, event details, track association, and confidence value.
+4. Open the evidence screenshot if one is available.
+5. Evaluate the evidence in context.
+6. Record the appropriate review status and notes using the available interface.
+
+A missing screenshot or an unassigned track ID should be treated as missing information, not as evidence of misconduct.
+
+---
+
+## Incident Management
+
+Incident records may contain fields such as:
+
+| Field | Description |
+|---|---|
+| Incident ID | Unique incident identifier |
+| Timestamp | Time associated with the recorded event |
+| Track ID | Associated tracked person, when confidently assigned |
+| Event Type | Type of detection or event |
+| Confidence | Model confidence for the relevant object detection |
+| Screenshot Path | Location of the saved evidence image |
+| Review Status | Current review state |
+| Reviewer Notes | Human review notes, where supported |
+
+The exact schema is determined by the database implementation.
+
+### Confidence Is Not a Cheating Probability
+
+A detection confidence score represents the model's confidence in its object detection. For example, a high-confidence phone detection indicates that the model strongly recognizes an object as a phone; it does not indicate that a student is likely to have cheated.
+
+---
+
+## Testing
+
+ExamGuard includes a project-specific automated test suite.
+
+To run tests with pytest:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v
+```
+
+The tests may cover areas such as:
+
+- Database operations and migrations.
+- Incident creation and retrieval.
+- Incident review status and notes.
+- Spatial association logic.
+- Detection visualization.
+- Video processing and cancellation.
+- API endpoints and evidence access.
+- Desktop application components.
+
+The actual test coverage depends on the current test files and environment.
+
+**Testing note:** Automated test results do not automatically establish that every hardware-dependent workflow works on every machine. Live camera behavior, GPU acceleration, and full end-to-end workflows should also be verified in the target environment.
+
+---
+
+## Responsible AI and Privacy
+
+ExamGuard is designed to support human review, not to make autonomous disciplinary decisions.
+
+### Observations Are Not Proof
+
+A detected phone or another flagged object is an observation that may justify further inspection. It does not prove that a student engaged in academic misconduct.
+
+### Human Review Is Required
+
+All potentially suspicious incidents should be reviewed in context by an authorized human proctor. Final decisions should account for the surrounding circumstances and available evidence.
+
+### Confidence Scores Require Context
+
+Object detection confidence is not a misconduct probability or a measure of intent.
+
+### Identity Association Can Be Uncertain
+
+Tracking and spatial association may fail because of occlusion, overlapping people, camera angles, or ambiguous object positions. Track IDs should not be treated as verified identities.
+
+### Protect Camera Footage and Evidence
+
+- Obtain appropriate consent and authorization before monitoring people.
+- Clearly communicate when a camera is active.
+- Restrict access to screenshots, recordings, and incident data.
+- Avoid uploading sensitive footage to public repositories.
+- Use synthetic or consented sample footage for demonstrations.
+- Apply appropriate retention and deletion practices.
+
+---
+
+## Limitations and Future Improvements
+
+Potential areas for future development include:
+
+- More robust detection under challenging lighting and camera angles.
+- Improved person-object association in crowded scenes.
+- Additional configurable event types.
+- Performance optimization for lower-powered hardware.
+- More comprehensive end-to-end and hardware integration tests.
+- Improved deployment and packaging workflows.
+- Expanded reporting and analytics.
+- Role-based access control and stronger evidence-retention management.
+
+These are potential improvements, not claims that they are already implemented.
+
+---
+
+## Author
+
+**Fares Elgohary**
+
+ExamGuard was developed as a computer vision and AI-assisted monitoring project, combining object detection, multi-object tracking, evidence capture, and incident review interfaces.
+
+---
+
+<p align="center">
+  <strong>ExamGuard</strong><br>
+  AI-assisted monitoring. Evidence-based review. Human-led decisions.
+</p>
