@@ -1,0 +1,11 @@
+groq
+python-dotenv
+pydantic
+fastapi
+uvicorn[standard]
+httpx
+email-validator
+pytest
+langgraph
+sqlalchemy
+pandas
