@@ -1,0 +1,21 @@
+{
+    "model_name": "distilbert/distilbert-base-uncased",
+    "max_token_length": 256,
+    "num_labels": 5,
+    "label2id": {
+        "credit_card": 0,
+        "credit_reporting": 1,
+        "debt_collection": 2,
+        "mortgages_and_loans": 3,
+        "retail_banking": 4
+    },
+    "id2label": {
+        "0": "credit_card",
+        "1": "credit_reporting",
+        "2": "debt_collection",
+        "3": "mortgages_and_loans",
+        "4": "retail_banking"
+    },
+    "test_accuracy": 0.8684902118530438,
+    "test_weighted_f1": 0.8679425893507696
+}

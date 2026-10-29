@@ -1,0 +1,68 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Testing & quality
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Gradio / UI runtime
+flagged/
+gradio_cached_examples/
+tmp/
+
+# Environment files and secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Temporary exports and logs
+*.log
+temp_exports/
+*.tmp
+
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------------------------------------------------------------
+# Training & Notebook artifacts (not part of the deployable app)
+# ---------------------------------------------------------------
+# Jupyter notebooks (training notebooks, not the app itself)
+*.ipynb
+
+# Notebook-derived analysis files
+cells_cm_info.txt
+clean_notebook_summary.txt
+notebook_extracted_metrics.json
+
+# Training images / confusion matrix PNGs from the notebook
+distilbert_val_cm.png
+test_cm_comparison.png
+
+# Dev-only utility scripts (not part of the app)
+inspect_outputs.py
+tests/dump_clean_summary.py
+tests/extract_notebook_metrics.py
+
+# ---------------------------------------------------------------
+# Model weights — large binary files (use Git LFS or exclude)
+# ---------------------------------------------------------------
+# The model.safetensors file is 268 MB — beyond GitHub's 100 MB limit.
+# Tracked via Git LFS. Uncomment the line below to exclude entirely instead:
+# models/best-distilbert-complaints/model.safetensors

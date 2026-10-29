@@ -1,0 +1,11 @@
+complaint_id,narrative,expected_category
+1,"I opened a credit card with promotional 0% APR for 18 months, but the bank charged me interest on my second statement. Customer service refused to reverse the finance charges.",credit_card
+2,"My annual credit report from Equifax lists an auto loan from a bank I have never dealt with. I submitted written disputes with proof of identity theft, but the bureau verified the fraudulent trade line without investigation.",credit_reporting
+3,"A debt collector called my workplace five times today demanding immediate payment for a medical bill from seven years ago that was already settled. They threatened wage garnishment and contacted my supervisor.",debt_collection
+4,"We submitted our complete mortgage refinancing application and locked our interest rate at 5.5%. The mortgage servicer delayed processing past the 60-day lock period and is now demanding higher points to close.",mortgages_and_loans
+5,"I attempted an ATM withdrawal of $400 at a branch machine. The machine dispensed no cash and displayed an error, but my checking account balance was deducted immediately. The branch told me to wait 30 days for a provisional credit.",retail_banking
+6,"Unauthorized foreign transaction fees were added to my debit card statement while traveling domestically. The merchant confirmed they processed in USD.",credit_card
+7,"A collection agency sent letters demanding repayment for a credit card debt discharged in bankruptcy court three years ago. They continue to report an active delinquent balance to Experian.",debt_collection
+8,"The lender miscalculated my property tax escrow shortage and increased my monthly mortgage payment by over $600. When I provided tax receipts showing no shortage, they refused to adjust the escrow analysis.",mortgages_and_loans
+9,"Public record bankruptcy remark remains on my TransUnion file even though the maximum statutory reporting period has expired. TransUnion ignored my certified dispute letter.",credit_reporting
+10,"The bank placed an unexpected hold on a cashier's check deposited into my business checking account, causing several payroll checks to bounce and incurring multiple overdraft fees.",retail_banking
