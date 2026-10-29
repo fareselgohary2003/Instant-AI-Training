@@ -1,0 +1,54 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoadVision AI</title>
+    <link rel="stylesheet" href="static/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>RoadVision AI</h1>
+        <p>Road damage detection dashboard</p>
+      </header>
+
+      <main class="panel">
+        <section class="upload-box">
+          <input id="imageInput" type="file" accept="image/*" />
+          <div>
+            <strong id="fileName">No file selected</strong>
+            <span id="fileMeta">0 KB</span>
+          </div>
+        </section>
+
+        <label class="slider-box">
+          <span>Confidence threshold</span>
+          <span id="confidenceValue">5%</span>
+          <input id="confidenceSlider" type="range" min="1" max="100" value="5" />
+        </label>
+
+        <button id="analyzeBtn">Analyze Image</button>
+      </main>
+
+      <section class="results">
+        <h2 id="resultSummary">Detected 0 objects</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Class</th>
+              <th>Confidence</th>
+              <th>BBox</th>
+            </tr>
+          </thead>
+          <tbody id="detectionsTableBody">
+            <tr><td colspan="4">No detections yet</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <script src="static/app.js"></script>
+  </body>
+</html>
